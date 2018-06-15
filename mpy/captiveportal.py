@@ -2,7 +2,6 @@ import ure as re
 import picoweb
 import logging
 
-
 class WebServer:
     def __init__(self, address, port, debug=-1):
         logging.basicConfig(level=logging.DEBUG)
