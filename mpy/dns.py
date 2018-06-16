@@ -22,12 +22,12 @@ class DNSQuery:
     def answer(self, ip):     # reply, providing ip as answer
         packet = None
         if self.domain:
-            packet = self.data[:2] + '\x81\x80' # QR=1, AA=1, RA=1
-            packet += self.data[4:6] + self.data[4:6] + '\x00\x00\x00\x00'   # Questions and Answers Counts
+            packet = self.data[:2] + b'\x81\x80' # QR=1, AA=1, RA=1
+            packet += self.data[4:6] + self.data[4:6] + b'\x00\x00\x00\x00'   # Questions and Answers Counts
             packet += self.data[12:self.qend]                                         # Original Domain Name Question
-            packet += '\xc0\x0c'                                             # Pointer to domain name
-            packet += '\x00\x01\x00\x01\x00\x00\x00\x3c\x00\x04'             # Response type, ttl and resource data length -> 4 bytes
-            packet += str.join('',map(lambda x: chr(int(x)), ip.split('.'))) # 4bytes of IP
+            packet += b'\xc0\x0c'                                             # Pointer to domain name
+            packet += b'\x00\x01\x00\x01\x00\x00\x00\x3c\x00\x04'             # Response type, ttl and resource data length -> 4 bytes
+            packet += bytes(map(int, ip.split('.')))                          # 4bytes of IP
         return packet
 
 
