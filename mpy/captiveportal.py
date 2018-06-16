@@ -10,7 +10,7 @@ class WebServer:
             # You can specify exact URI string matches...
             ("/", self.index),
             ("/squares", self.squares),
-            ("/file", lambda req, resp: (yield from self.app.sendfile(resp, "example_webapp.py"))),
+            ("/file", lambda req, resp: (yield from self.app.sendfile(resp, "captiveportal.py"))),
             # ... or match using a regex, the match result available as req.url_match
             # for match group extraction in your view.
             (re.compile("^/iam/(.+)"), self.hello),
