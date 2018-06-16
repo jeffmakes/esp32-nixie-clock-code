@@ -1,17 +1,18 @@
 import utime as time
 import network
 from machine import Pin
-import logging
+import uasyncio as asyncio
 
 from captiveportal import WebServer
-
+from dns import DNSServer
 
 class EspNixie:
     def __init__(self):
         print("espnixie init!")
         self.if_ap = None
         self.if_sta = None
-        self.web = None
+        self.webserver = None
+        self.dnsserver = None
 
     def ap_init(self):
         print("Initialising AP")
@@ -38,14 +39,21 @@ class EspNixie:
 
     def web_init(self):
         print("Initialising webserver")
-        self.web = WebServer(address=self.if_ap.ifconfig()[0], port=80, debug=2)
+        self.webserver = WebServer(address=self.if_ap.ifconfig()[0], port=80, debug=2)
 
     def main(self):
         led = Pin(2, Pin.OUT)
         enabled = False
 
         self.ap_init()
+        self.dnsserver = DNSServer(self.if_ap.ifconfig()[0])
+        self.dnsserver.run()
+
+        loop = asyncio.get_event_loop()
+
+        loop.create_task(self.dnsserver.run())  # Schedule ASAP
         self.web_init()
+        loop.run_forever()
 
         for i in range(6):
             led.value(not led.value())
