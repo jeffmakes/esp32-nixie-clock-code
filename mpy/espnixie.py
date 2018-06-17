@@ -41,26 +41,23 @@ class EspNixie:
         print("Initialising webserver")
         self.webserver = WebServer(address=self.if_ap.ifconfig()[0], port=80, debug=2)
 
-    def main(self):
-        led = Pin(2, Pin.OUT)
+    async def blink(self):
         enabled = False
+        led = Pin(2, Pin.OUT)
+        while True:
+            led.value(enabled)
+            enabled = not enabled
+            await asyncio.sleep_ms(200)
 
+    def main(self):
         self.ap_init()
         self.dnsserver = DNSServer(self.if_ap.ifconfig()[0])
         self.dnsserver.run()
 
         loop = asyncio.get_event_loop()
 
-        loop.create_task(self.dnsserver.run())  # Schedule ASAP
+        loop.create_task(self.dnsserver.run())
+        loop.create_task(self.blink())
         self.web_init()
+
         loop.run_forever()
-
-        for i in range(6):
-            led.value(not led.value())
-            time.sleep_ms(100)
-
-        while True:
-            led.value(enabled)
-            time.sleep_ms(100)
-            print("status " + str(enabled))
-            enabled = not enabled
