@@ -6,6 +6,7 @@ import uasyncio as asyncio
 from captiveportal import WebServer
 from dns import DNSServer
 
+
 class EspNixie:
     def __init__(self):
         print("espnixie init!")
@@ -37,7 +38,6 @@ class EspNixie:
         if self.if_sta.isconnected():
             print ("Connected to network {}".format(ssid))
 
-    def web_init(self):
         print("Initialising webserver")
         self.webserver = WebServer(address=self.if_ap.ifconfig()[0], port=80, debug=2)
 
@@ -51,13 +51,12 @@ class EspNixie:
 
     def main(self):
         self.ap_init()
-        self.dnsserver = DNSServer(self.if_ap.ifconfig()[0])
-        self.dnsserver.run()
+        self.dnsserver = DNSServer(ip=self.if_ap.ifconfig()[0])
+        self.webserver = WebServer(address=self.if_ap.ifconfig()[0], port=80, debug=2)
 
         loop = asyncio.get_event_loop()
 
-        loop.create_task(self.dnsserver.run())
         loop.create_task(self.blink())
-        self.web_init()
-
+        self.dnsserver.run()
+        self.webserver.run()  # picoweb app runs loop.run_forever(), so it must be the last task to be created.
         loop.run_forever()
